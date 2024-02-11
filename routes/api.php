@@ -2,7 +2,7 @@
 
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\JerichoUserController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\SystemSettingController;
@@ -32,9 +32,9 @@ Route::get('/organizations/search/{name}', [OrganizationController::class, 'sear
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/locations/{id}', [LocationController::class, 'show']);
 Route::get('/locations/search/{name}', [LocationController::class, 'search']);
-Route::get('/jericho', [JerichoUserController::class, 'index']);
-Route::get('/jericho/{id}', [JerichoUserController::class, 'show']);
-Route::get('/jericho/search/{name}', [JerichoUserController::class, 'search']);
+Route::get('/people', [PersonController::class, 'index']);
+Route::get('/people/{id}', [PersonController::class, 'show']);
+Route::get('/people/search/{name}', [PersonController::class, 'search']);
 Route::get('/app', [SystemSettingController::class, 'index']);
 // Route::get('/system/{id}', [SystemController::class, 'show']);
 // Route::get('/system/search/{name}', [SystemController::class, 'search']);
@@ -49,9 +49,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/locations', [LocationController::class, 'store']);
     Route::put('/locations/{id}', [LocationController::class, 'update']);
     Route::delete('/locations/{id}', [LocationController::class, 'destroy']);
-    Route::post('/jericho', [JerichoUserController::class, 'store']);
-    Route::put('/jericho/{id}', [JerichoUserController::class, 'update']);
-    Route::delete('/jericho/{id}', [JerichoUserController::class, 'destroy']);
+    Route::post('/people', [PersonController::class, 'store']);
+    Route::put('/people/{id}', [PersonController::class, 'update']);
+    Route::delete('/people/{id}', [PersonController::class, 'destroy']);
     // Route::post('/system', [SystemController::class, 'store']);
     // Route::put('/system/{id}', [SystemController::class, 'update']);
     // Route::delete('/system/{id}', [SystemController::class, 'destroy']);

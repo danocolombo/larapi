@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class JerichoUser extends Model
+class Person extends Model
 {
+    protected $table = 'persons';
     protected $primaryKey = 'id'; // Specify the primary key
     public $incrementing = false; // Disable auto-incrementing
     protected $keyType = 'string'; // Set the key type as string
@@ -29,42 +30,42 @@ class JerichoUser extends Model
     {
         parent::boot();
 
-        static::saving(function ($jericho_user) {
+        static::saving(function ($person) {
             // Check if first_name is empty and set it to null
-            if (empty($jericho_user->first_name)) {
-                $jericho_user->first_name = null;
+            if (empty($person->first_name)) {
+                $person->first_name = null;
             }
             // Check if last_name is empty and set it to null
-            if (empty($jericho_user->last_name)) {
-                $jericho_user->last_name = null;
+            if (empty($person->last_name)) {
+                $person->last_name = null;
             }
             // Check if email is empty and set it to null
-            if (empty($jericho_user->email)) {
-                $jericho_user->email = null;
+            if (empty($person->email)) {
+                $person->email = null;
             }
             // Check if phone is empty and set it to null
-            if (empty($jericho_user->phone)) {
-                $jericho_user->phone = null;
+            if (empty($person->phone)) {
+                $person->phone = null;
             }
             // Check if shirt is empty and set it to null
-            if (empty($jericho_user->shirt)) {
-                $jericho_user->shirt = null;
+            if (empty($person->shirt)) {
+                $person->shirt = null;
             }
             // Check if birthday is empty and set it to null
-            if (empty($jericho_user->birthday)) {
-                $jericho_user->birthday = null;
+            if (empty($person->birthday)) {
+                $person->birthday = null;
             }
             // Check if picture is empty and set it to null
-            if (empty($jericho_user->picture)) {
-                $jericho_user->picture = null;
+            if (empty($person->picture)) {
+                $person->picture = null;
             }
             // Check if default_org_id is empty and set it to null
-            if (empty($jericho_user->default_org_id)) {
-                $jericho_user->default_org_id = null;
+            if (empty($person->default_org_id)) {
+                $person->default_org_id = null;
             }
             // Check if location_id is empty and set it to null
-            if (empty($jericho_user->location_id)) {
-                $jericho_user->location_id = null;
+            if (empty($person->location_id)) {
+                $person->location_id = null;
             }
         });
     }

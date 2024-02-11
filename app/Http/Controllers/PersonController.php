@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JerichoUser;
+use App\Models\Person;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
 
-class JerichoUserController extends Controller
+class PersonController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return JerichoUser::all();
+        return Person::all();
     }
 
     /**
@@ -34,14 +34,23 @@ class JerichoUserController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => 'POST request failed', 'request' => $request->all()], 422);
         }
-
+        // Check if the 'sub' value already exists in the table
+        $existingPerson = Person::where('sub', $request->sub)->first();
+        if ($existingPerson) {
+            return response()->json(['message' => 'Duplicate sub value', 'sub' => $existingPerson->sub], 422);
+        }
+        // Check if the 'sub' value already exists in the table
+        $existingPerson = Person::where('username', $request->username)->first();
+        if ($existingPerson) {
+            return response()->json(['message' => 'Username is already used', 'username' => $existingPerson->username], 422);
+        }
         /* Generate UUID for the id field */
         $uuid = Str::uuid()->toString(); // Generate 
-        $theUser = new JerichoUser($request->all());
-        $theUser->id = $uuid; // Set UUID as id
-        $theUser->save();
+        $person = new Person($request->all());
+        $person->id = $uuid; // Set UUID as id
+        $person->save();
 
-        return response()->json(['message' => 'New user successful', 'user' => $theUser], 200);
+        return response()->json(['message' => 'New person successful', 'person' => $person], 200);
     }
 
     /**
@@ -57,7 +66,7 @@ class JerichoUserController extends Controller
 
         // Validate the $id parameter
         $idValidationRules = [
-            'id' => 'required|uuid|exists:jericho_users,id',
+            'id' => 'required|uuid|exists:persons,id',
         ];
 
         $request->merge(['id' => $id]);
@@ -77,16 +86,16 @@ class JerichoUserController extends Controller
         }
 
         // Get the jericho_user to update
-        $the_user = JerichoUser::find($id);
+        $person = Person::find($id);
 
         // If the obligation doesn't exist, return 404
-        if (!$the_user) {
-            return response()->json(['message' => 'User not found'], 404);
+        if (!$person) {
+            return response()->json(['message' => 'Person not found'], 404);
         }
 
         // Update values
-        if ($the_user->update($request->all())) {
-            return response()->json(['message' => 'Update successful'], 200);
+        if ($person->update($request->all())) {
+            return response()->json(['message' => 'Update successful', 'person' => $person], 200);
         } else {
             return response()->json(['message' => 'Update failed'], 422);
         }
@@ -99,7 +108,7 @@ class JerichoUserController extends Controller
     {
         // Validate that $id is provided and is a valid UUID
         $validationRules = [
-            'id' => 'required|uuid|exists:jericho_users,id',
+            'id' => 'required|uuid|exists:persons,id',
         ];
 
         // Merge the ID into the request for validation
@@ -109,12 +118,12 @@ class JerichoUserController extends Controller
         $request->validate($validationRules);
 
         // Attempt to delete the account
-        if (JerichoUser::destroy($id)) {
+        if (Person::destroy($id)) {
             // If successful, return a 200 response with the message
-            return response()->json(['message' => 'Destroy User successful'], 200);
+            return response()->json(['message' => 'Destroy Person successful'], 200);
         } else {
             // If unsuccessful, return a 422 response with the message
-            return response()->json(['message' => 'Destroy User unsuccessful'], 422);
+            return response()->json(['message' => 'Destroy Person unsuccessful'], 422);
         }
     }
 
@@ -123,7 +132,7 @@ class JerichoUserController extends Controller
      */
     public function show(string $id)
     {
-        return JerichoUser::find($id);
+        return Person::find($id);
     }
 
     public function search(string $name)
@@ -132,6 +141,6 @@ class JerichoUserController extends Controller
          * the second parameter is the sql command and we concatenate
          *  % on the front and back of the input variable
          */
-        return JerichoUser::where('username', 'like', '%' . $name . '%')->get();
+        return Person::where('username', 'like', '%' . $name . '%')->get();
     }
 }
