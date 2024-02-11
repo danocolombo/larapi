@@ -110,4 +110,23 @@ class Meeting extends Model
             }
         });
     }
+    public function setDonationsAttribute($value)
+    {
+        // Check if the provided value is not null and not 0
+        if ($value !== null && $value !== 0) {
+            // Format the donations value to two decimal places
+            $this->attributes['donations'] = number_format($value, 2);
+        } else {
+            // If the value is null or 0, set donations to null
+            $this->attributes['donations'] = null;
+        }
+    }
+    // Define a validation rule for the organization_id attribute
+    public static function getValidationRules()
+    {
+        return [
+            'organization_id' => 'required|exists:organizations,id',
+            // Add other validation rules for other attributes if needed
+        ];
+    }
 }
