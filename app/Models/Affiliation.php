@@ -15,7 +15,7 @@ class Affiliation extends Model
         'id',
         'role',
         'status',
-        'user_id',
+        'person_id',
         'organization_id'
     ];
 }

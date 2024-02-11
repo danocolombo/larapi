@@ -31,7 +31,7 @@ Route::get('/organizations/{id}', [OrganizationController::class, 'show']);
 Route::get('/organizations/search/{name}', [OrganizationController::class, 'search']);
 Route::get('/affiliations', [AffiliationController::class, 'index']);
 Route::get('/affiliations/{id}', [AffiliationController::class, 'show']);
-Route::get('/affiliations/search/{name}', [AffiliationController::class, 'search']);
+Route::get('/affiliations/target', [AffiliationController::class, 'target']);
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/locations/{id}', [LocationController::class, 'show']);
 Route::get('/locations/search/{name}', [LocationController::class, 'search']);
