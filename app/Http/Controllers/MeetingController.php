@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Meeting;
+use App\Models\Organization;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
@@ -24,30 +25,51 @@ class MeetingController extends Controller
         $validator = Validator::make($request->all(), [
             'meeting_date' => 'required',
             'title' => 'required',
-            'organization_id' => 'required|UUID'
+            'organization_id' => 'required|uuid'
         ]);
 
         /* Check for validation errors */
         if ($validator->fails()) {
-            return response()->json(['message' => 'POST request failed', 'request' => $request->all()], 422);
+            return response()->json(['message' => 'POST request failed', 'errors' => $validator->errors()], 422);
+        }
+
+        /* Check if organization_id exists in the organizations table */
+        $organizationId = $request->input('organization_id');
+        if (!Organization::where('id', $organizationId)->exists()) {
+            return response()->json(['message' => 'Invalid organization_id'], 422);
         }
 
         /* Generate UUID for the id field */
-        $uuid = Str::uuid()->toString(); // Generate 
+        $uuid = Str::uuid()->toString(); // Generate UUID
         $meeting = new Meeting($request->all());
         $meeting->id = $uuid; // Set UUID as id
         $meeting->save();
 
         return response()->json(['message' => 'New meeting successful', 'meeting' => $meeting], 200);
     }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        // Merge the id parameter into the request data
-        $request->merge(['id' => $id]);
+        // Get the meeting
+        $meeting = Meeting::find($id);
 
+        // Check if the meeting exists
+        if (!$meeting) {
+            return response()->json(['message' => 'Meeting not found'], 404);
+        }
+
+        // Check if organization_id is provided in the request
+        if ($request->has('organization_id')) {
+            $organizationId = $request->input('organization_id');
+            if (!Organization::where('id', $organizationId)->exists()) {
+                return response()->json(['message' => 'Invalid request. Organization ID does not exist'], 422);
+            }
+        }
+
+        // Proceed with the update operation
         // Validate the request body
         $validator = Validator::make($request->all(), [
             'organization_id' => 'sometimes|uuid', // Ensure organization_id is a valid UUID if provided
@@ -85,37 +107,14 @@ class MeetingController extends Controller
             'youth_contact' => 'sometimes|nullable|string',
         ]);
 
-        // Validate the $id parameter
-        $request->validate([
-            'id' => 'required|uuid|exists:meetings,id',
-        ]);
-
-        // Check if organization_id is provided
-        if ($request->has('organization_id')) {
-            return response()->json(['message' => 'Unsupported request. Organization cannot be changed.'], 422);
-        }
-
         // Check if validation fails
         if ($validator->fails()) {
             return response()->json(['message' => 'Update failed', 'errors' => $validator->errors()], 422);
         }
 
-        // Get the meeting to update
-        $meeting = Meeting::find($id);
-
-        // If the meeting doesn't exist, return 404
-        if (!$meeting) {
-            return response()->json(['message' => 'Meeting not found'], 404);
-        }
-        // Update values
-        $meetingData = $request->except('organization_id', 'id');
-
         // Check if donation key exists and format it if needed
-        if (array_key_exists('donation', $meetingData)) {
-            $meeting->donation = number_format(
-                $meetingData['donation'],
-                2
-            );
+        if ($request->has('donation')) {
+            $request->merge(['donation' => number_format($request->input('donation'), 2)]);
         }
 
         // Update values

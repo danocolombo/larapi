@@ -15,7 +15,6 @@ class DefaultGroup extends Model
         'title',
         'location',
         'gender',
-        'attendance',
         'facilitator',
         'organization_id'
     ];
@@ -27,9 +26,10 @@ class DefaultGroup extends Model
         static::saving(function ($group) {
             // Define validation rules for string attributes
             $stringRules = [
+                'title',
                 'location',
-                'facilitator',
-                'cofacilitator'
+                'gender',
+                'facilitator'
             ];
 
             // Validate string attributes and set to null if validation fails
