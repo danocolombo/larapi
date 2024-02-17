@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Meeting;
+use App\Models\Group;
 use App\Models\Organization;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
+use PhpParser\Node\Stmt\TryCatch;
+
 class MeetingController extends Controller
 {
     /**
@@ -150,6 +153,28 @@ class MeetingController extends Controller
             return response()->json(['message' => 'Destroy Meeting unsuccessful'], 422);
         }
     }
+    public function getMeetingAndGroups(string $id)
+    {
+        // Retrieve the meeting by ID
+        $meeting = Meeting::find($id);
+
+        // Check if the meeting exists
+        if ($meeting) {
+            // Retrieve all groups related to the meeting
+            $groups = Group::where('meeting_id', $id)->get();
+
+            // Add the groups to the meeting object
+            $meeting->groups = $groups;
+
+            // Return the meeting object with groups
+            return response()->json($meeting, 200);
+        } else {
+            // Return a 404 response if the meeting is not found
+            return response()->json(['message' => 'Meeting not found'], 404);
+        }
+    }
+
+
     public function show(string $id)
     {
         return Meeting::find($id);

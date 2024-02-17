@@ -3,6 +3,7 @@
 use App\Http\Controllers\AffiliationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\OrganizationController;
@@ -34,6 +35,10 @@ Route::get('/organizations/search/{name}', [OrganizationController::class, 'sear
 Route::get('/meetings', [MeetingController::class, 'index']);
 Route::get('/meetings/{id}', [MeetingController::class, 'show']);
 Route::get('/meetings/search/{name}', [MeetingController::class, 'search']);
+Route::get('/meetings/groups/{id}', [MeetingController::class, 'getMeetingAndGroups']);
+Route::get('/groups', [GroupController::class, 'index']);
+Route::get('/groups/{id}', [GroupController::class, 'show']);
+Route::get('/groups/meeting/{id}', [GroupController::class, 'searchByMeetingId']);
 Route::get('/affiliations', [AffiliationController::class, 'index']);
 Route::get('/affiliations/{id}', [AffiliationController::class, 'show']);
 Route::get('/affiliations/target', [AffiliationController::class, 'target']);
@@ -60,6 +65,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/meetings', [MeetingController::class, 'store']);
     Route::put('/meetings/{id}', [MeetingController::class, 'update']);
     Route::delete('/meetings/{id}', [MeetingController::class, 'destroy']);
+    Route::post('/groups', [GroupController::class, 'store']);
+    Route::put('/groups/{id}', [GroupController::class, 'update']);
+    Route::delete('/groups/{id}', [GroupController::class, 'destroy']);
     Route::post('/affiliations', [AffiliationController::class, 'store']);
     Route::put('/affiliations/{id}', [AffiliationController::class, 'update']);
     Route::delete('/affiliations/{id}', [AffiliationController::class, 'destroy']);
