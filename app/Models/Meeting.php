@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 
@@ -134,4 +135,57 @@ class Meeting extends Model
             // Add other validation rules for other attributes if needed
         ];
     }
+    public function filterNulls()
+    {
+        return collect($this->toArray())->filter(function ($value) {
+            return !is_null($value);
+        })->all();
+    }
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
+    public function meetingDetailsOne()
+    {
+        return $this->with('groups')->find($this->id);
+    }
+    public function meetingDetailsTwo()
+    {
+        $meeting = $this->with('groups')->find($this->id);
+
+        // Filter null values from non-group attributes
+        $filteredMeeting = collect($meeting->toArray())->filter(function ($value, $key) {
+            return !is_null($value) && $key !== 'groups';
+        })->all();
+
+        // Keep groups array as is
+        $filteredMeeting['groups'] = $meeting->groups->map(function ($group) {
+            return [
+                'id' => $group->id,
+                'title' => $group->title,
+                'meeting_id' => $group->meeting_id,
+            ];
+        })->toArray();
+
+        return $filteredMeeting;
+    }
+    public function meetingDetails()
+    {
+        $meeting = $this->with('groups')->find($this->id);
+
+        // Filter null values from non-group attributes
+        $filteredMeeting = collect($meeting->toArray())->filter(function ($value, $key) {
+            return !is_null($value) && $key !== 'groups';
+        })->all();
+
+        // Utilize the Groups model for group-related processing
+        $filteredMeeting['groups'] = $meeting->groups->map(function ($group) {
+            return $group->formatForDetails(); // Call a method on the Group model
+        })->toArray();
+
+        return $filteredMeeting;
+    }
 }
+// class Group extends Model {
+
+// }

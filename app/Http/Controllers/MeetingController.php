@@ -187,4 +187,42 @@ class MeetingController extends Controller
          */
         return Meeting::where('meeting_date', 'like', '%' . $target . '%')->get();
     }
+    // In your controller
+    public function gemini(string $id)
+    {
+        $meetingDetails = Meeting::find($id)->meetingDetails();
+
+        if ($meetingDetails) {
+            return response()->json(['meeting' => $meetingDetails], 200);
+        } else {
+            return response()->json(['message' => 'Meeting not found'], 404);
+        }
+    }
+    public function     geminiOne(string $id)
+    {
+        $meeting = Meeting::find($id);
+        $meetingDetails = $meeting->meetingDetails();
+        if ($meeting) {
+            $myResponse = [
+                'id' => $meeting->id,
+                'title' => $meeting->title,
+                'groups' => $meeting->groups->map(function ($group) {
+                    return [
+                        'id' => $group->id,
+                        'title' => $group->title,
+                        'meeting_id' => $group->meeting_id,
+                    ];
+                })->toArray(),
+            ];
+            $filteredMeeting = $meeting->filter(function ($value) {
+                return !is_null($value);
+            });
+
+            return response()->json(['meeting' => $filteredMeeting], 200);
+            // return response()->json(['meeting' => $meeting], 200);
+            // Now you have the desired structure in $myResponse
+        } else {
+            return response()->json(['message' => 'Meeting not found'], 404);
+        }
+    }
 }

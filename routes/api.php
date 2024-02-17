@@ -36,6 +36,8 @@ Route::get('/meetings', [MeetingController::class, 'index']);
 Route::get('/meetings/{id}', [MeetingController::class, 'show']);
 Route::get('/meetings/search/{name}', [MeetingController::class, 'search']);
 Route::get('/meetings/groups/{id}', [MeetingController::class, 'getMeetingAndGroups']);
+Route::get('/meetings/gemini/{id}', [MeetingController::class, 'gemini']);
+
 Route::get('/groups', [GroupController::class, 'index']);
 Route::get('/groups/{id}', [GroupController::class, 'show']);
 Route::get('/groups/meeting/{id}', [GroupController::class, 'searchByMeetingId']);

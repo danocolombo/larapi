@@ -57,4 +57,25 @@ class Group extends Model
             }
         });
     }
+    public function meeting()
+    {
+        return $this->belongsTo(Meeting::class);
+    }
+    public function formatForDetails()
+    {
+        $data = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'location' => $this->location,
+            'gender' => $this->gender,
+            'facilitator' => $this->facilitator,
+            'cofacilitator' => $this->cofacilitator,
+            'notes' => $this->notes,
+        ];
+
+        $emptyKeys = array_fill_keys(array_keys($data), null);
+        $nonEmptyData = array_diff($data, $emptyKeys);
+
+        return $nonEmptyData;
+    }
 }
