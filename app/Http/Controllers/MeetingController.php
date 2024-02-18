@@ -8,6 +8,8 @@ use App\Models\Organization;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rules\Exists;
 use PhpParser\Node\Stmt\TryCatch;
 
 class MeetingController extends Controller
@@ -15,9 +17,25 @@ class MeetingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Meeting::all();
+        $org_id = $request->header('org_id');
+        if ($org_id) {
+            $results = Meeting::where('organization_id', $org_id)->get();
+            return response()->json(['data' => $results], 200);
+        } else {
+            return response()->json(['message' => 'org_id is required'], 422);
+        }
+    }
+    public function getActiveOne(Request $request)
+    {
+        $org_id = $request->header('org_id');
+        if ($org_id) {
+            $results = Meeting::where('organization_id', $org_id)->get();
+            return response()->json(['data' => $results], 200);
+        } else {
+            return response()->json(['message' => 'org_id is required'], 422);
+        }
     }
     /**
      * Store a newly created resource in storage.
@@ -198,31 +216,18 @@ class MeetingController extends Controller
             return response()->json(['message' => 'Meeting not found'], 404);
         }
     }
-    public function     geminiOne(string $id)
+    public function getActive(Request $request)
     {
-        $meeting = Meeting::find($id);
-        $meetingDetails = $meeting->meetingDetails();
-        if ($meeting) {
-            $myResponse = [
-                'id' => $meeting->id,
-                'title' => $meeting->title,
-                'groups' => $meeting->groups->map(function ($group) {
-                    return [
-                        'id' => $group->id,
-                        'title' => $group->title,
-                        'meeting_id' => $group->meeting_id,
-                    ];
-                })->toArray(),
-            ];
-            $filteredMeeting = $meeting->filter(function ($value) {
-                return !is_null($value);
-            });
-
-            return response()->json(['meeting' => $filteredMeeting], 200);
-            // return response()->json(['meeting' => $meeting], 200);
-            // Now you have the desired structure in $myResponse
+        $org_id = $request->header('org_id');
+        if ($org_id) {
+            // Get all the active (today or future) meetings for org_id
+            $results = Meeting::where('organization_id', $org_id)
+                ->whereDate('meeting_date', '>=', Carbon::today()) // Filter meetings for today or in the future
+                ->orderBy('meeting_date', 'asc') // Sort by meeting_date ascending
+                ->get();
+            return response()->json(['data' => $results], 200);
         } else {
-            return response()->json(['message' => 'Meeting not found'], 404);
+            return response()->json(['message' => 'org_id is required'], 422);
         }
     }
 }

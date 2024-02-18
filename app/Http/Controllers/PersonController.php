@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Affiliation;
+use App\Models\Organization;
 use App\Models\Person;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -140,14 +142,35 @@ class PersonController extends Controller
      */
     public function getSub(string $id)
     {
-        // get the person, which should have affiliations and default org
-        $person = Person::where('sub', '=', $id)->get();
-        if ($person) {
-            return response()->json(['data' => $person], 200);
-        } else {
+        // Get the person based on the 'sub' identifier
+        $person = Person::where('sub', $id)->first();
+
+        // Check if the person exists
+        if (!$person) {
             return response()->json(['message' => 'User not found'], 404);
         }
+
+        // Check if the person has a default organization
+        if (!$person->default_org_id) {
+            return response()->json(['message' => 'Default organization not defined'], 400);
+        }
+
+        // Get affiliations for the person with the default organization
+        $affiliations = Affiliation::where('person_id', $person->id)
+            ->where('organization_id', $person->default_org_id)
+            ->get();
+
+        // Get the default organization
+        $organization = Organization::find($person->default_org_id);
+
+        // Add affiliations and default organization to the person object
+        $person->affiliations = $affiliations;
+        $person->current_org = $organization;
+
+        // Return the person data with HTTP status code 200 (OK)
+        return response()->json(['data' => $person], 200);
     }
+
 
 
 

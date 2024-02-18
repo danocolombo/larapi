@@ -33,6 +33,7 @@ Route::get('/organizations', [OrganizationController::class, 'index']);
 Route::get('/organizations/{id}', [OrganizationController::class, 'show']);
 Route::get('/organizations/search/{name}', [OrganizationController::class, 'search']);
 Route::get('/meetings', [MeetingController::class, 'index']);
+Route::get('/meetings/active', [MeetingController::class, 'getActive']);
 Route::get('/meetings/{id}', [MeetingController::class, 'show']);
 Route::get('/meetings/search/{name}', [MeetingController::class, 'search']);
 Route::get('/meetings/groups/{id}', [MeetingController::class, 'getMeetingAndGroups']);
