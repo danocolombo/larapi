@@ -149,26 +149,6 @@ class Meeting extends Model
     {
         return $this->with('groups')->find($this->id);
     }
-    public function meetingDetailsTwo()
-    {
-        $meeting = $this->with('groups')->find($this->id);
-
-        // Filter null values from non-group attributes
-        $filteredMeeting = collect($meeting->toArray())->filter(function ($value, $key) {
-            return !is_null($value) && $key !== 'groups';
-        })->all();
-
-        // Keep groups array as is
-        $filteredMeeting['groups'] = $meeting->groups->map(function ($group) {
-            return [
-                'id' => $group->id,
-                'title' => $group->title,
-                'meeting_id' => $group->meeting_id,
-            ];
-        })->toArray();
-
-        return $filteredMeeting;
-    }
     public function meetingDetails()
     {
         $meeting = $this->with('groups')->find($this->id);

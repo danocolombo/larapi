@@ -135,6 +135,22 @@ class PersonController extends Controller
         return Person::find($id);
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function getSub(string $id)
+    {
+        // get the person, which should have affiliations and default org
+        $person = Person::where('sub', '=', $id)->get();
+        if ($person) {
+            return response()->json(['data' => $person], 200);
+        } else {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+    }
+
+
+
     public function search(string $name)
     {
         /**

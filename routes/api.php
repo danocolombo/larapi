@@ -53,6 +53,8 @@ Route::get('/locations/search/{name}', [LocationController::class, 'search']);
 Route::get('/people', [PersonController::class, 'index']);
 Route::get('/people/{id}', [PersonController::class, 'show']);
 Route::get('/people/search/{name}', [PersonController::class, 'search']);
+Route::get('/people/sub/{id}', [PersonController::class, 'getSub']);
+
 Route::get('/system', [SystemSettingController::class, 'index']);
 Route::get('/system/{id}', [SystemSettingController::class, 'show']);
 // Route::get('/system/search/{name}', [SystemController::class, 'search']);
