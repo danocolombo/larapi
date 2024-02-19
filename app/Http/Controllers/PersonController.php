@@ -143,6 +143,39 @@ class PersonController extends Controller
     public function getSub(string $id)
     {
         // Get the person based on the 'sub' identifier
+        // $person = Person::with(['affiliations:id,name,person_id', 'organization'])->where('sub', $id)->first();
+        // $person = Person::with(['affiliations' => function ($query) use ($id) {
+        //     $query->where('person_id', $id);
+        // }, 'organization:id,default_org_id' => function ($query, $person) {
+        //     // Access the 'person' object passed as a second argument
+        //     $query->where('id', $person->default_org_id);
+        // }])
+        //     ->where('sub', $id)
+        //     ->first();
+        $person = Person::with([
+            'affiliations' => function ($query) use ($id) {
+                $query->where('person_id', $id);
+            },
+            'defaultOrg' // No need for an inner closure here
+        ])
+            ->where('sub', $id)
+            ->first();
+        // Check if the person exists
+        if (!$person) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Check if the person has a default organization
+        // if (!$person->organization) {
+        //     return response()->json(['message' => 'Default organization not defined'], 400);
+        // }
+
+        // Return the person data with affiliations and organization included
+        return response()->json(['data' => $person], 200);
+    }
+    public function getSub1(string $id)
+    {
+        // Get the person based on the 'sub' identifier
         $person = Person::where('sub', $id)->first();
 
         // Check if the person exists
@@ -164,8 +197,8 @@ class PersonController extends Controller
         $organization = Organization::find($person->default_org_id);
 
         // Add affiliations and default organization to the person object
-        $person->affiliations = $affiliations;
-        $person->current_org = $organization;
+        // $person->affiliations->items =  $affiliations;
+        // $person->current_org = $organization;
 
         // Return the person data with HTTP status code 200 (OK)
         return response()->json(['data' => $person], 200);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
 
@@ -14,7 +15,9 @@ class GroupController extends Controller
      */
     public function index()
     {
-        return Group::all();
+        //return Group::all();
+        $groups = Group::query()->paginate(perPage: 3);
+        return response()->json(['data' => $groups], 200);
     }
 
     /**
