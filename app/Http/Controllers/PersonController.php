@@ -144,17 +144,24 @@ class PersonController extends Controller
     {
         $person = Person::with([
             'affiliations:id,role,status,person_id,organization_id', // Include necessary fields in affiliations
-            'defaultOrg:id,name,code,hero_message,location_id'
+            'defaultOrg:id,name,code,hero_message,location_id',
+            'location:id,street,city,state_prov,postal_code'
         ])->where('sub', $id)->first();
 
         if (!$person) {
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        // Now let's load the affiliations where group_id matches $person->id
+        // Now let's load the affiliations
         $person->load(['affiliations' => function ($query) use ($person) {
             $query->where('person_id', $person->id);
         }]);
+
+        $person->load(['location' => function ($query) use ($person) {
+            $query->where('id', $person->location_id);
+        }]);
+
+        // Now let's load the location where 
 
         // Return the person data with affiliations and organization included
         return response()->json(['data' => $person], 200);

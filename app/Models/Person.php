@@ -51,4 +51,10 @@ class Person extends Model
     {
         return $this->hasOne(Organization::class, 'id', 'default_org_id');
     }
+
+    // Define the hasOne relationship with Location (assuming the correct model name):
+    public function location()
+    {
+        return $this->hasOne(Location::class, 'id', 'location_id');
+    }
 }
