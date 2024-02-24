@@ -230,4 +230,19 @@ class MeetingController extends Controller
             return response()->json(['message' => 'org_id is required'], 422);
         }
     }
+    public function getHistoricMeetingsPage(Request $request)
+    {
+        $org_id = $request->header('org_id');
+        if ($org_id) {
+            // Get paginated historic meetings for org_id
+            $historicMeetings = Meeting::where('organization_id', $org_id)
+                ->whereDate('meeting_date', '<', Carbon::today())
+                ->orderBy('meeting_date', 'desc')
+                ->paginate(perPage: 20);  // Apply pagination with 20 meetings per page
+            dd($historicMeetings->sql());
+            return response()->json(['data' => $historicMeetings], 200);
+        } else {
+            return response()->json(['message' => 'org_id is required'], 422);
+        }
+    }
 }
