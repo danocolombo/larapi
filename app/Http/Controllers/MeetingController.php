@@ -20,13 +20,26 @@ class MeetingController extends Controller
     public function index(Request $request)
     {
         $org_id = $request->header('org_id');
-        if ($org_id) {
-            $results = Meeting::where('organization_id', $org_id)->get();
-            return response()->json(['data' => $results], 200);
-        } else {
-            return response()->json(['message' => 'org_id is required'], 422);
-        }
+        $meetings = Meeting::query();
+
+        // Apply any necessary where clauses
+        $meetings->where('organization_id', $org_id);
+
+        // Paginate the results using paginate()
+        $paginatedMeetings = $meetings->paginate(perPage: 10);
+
+        return response()->json(['data' => $paginatedMeetings], 200);
     }
+    // public function index(Request $request)
+    // {
+    //     $org_id = $request->header('org_id');
+    //     if ($org_id) {
+    //         $results = Meeting::where('organization_id', $org_id)->get();
+    //         return response()->json(['data' => $results], 200);
+    //     } else {
+    //         return response()->json(['message' => 'org_id is required'], 422);
+    //     }
+    // }
     public function getActiveOne(Request $request)
     {
         $org_id = $request->header('org_id');
@@ -216,33 +229,18 @@ class MeetingController extends Controller
             return response()->json(['message' => 'Meeting not found'], 404);
         }
     }
-    public function getActive(Request $request)
+    public function getMeetingsHistoryPage(Request $request, $page)
     {
         $org_id = $request->header('org_id');
-        if ($org_id) {
-            // Get all the active (today or future) meetings for org_id
-            $results = Meeting::where('organization_id', $org_id)
-                ->whereDate('meeting_date', '>=', Carbon::today()) // Filter meetings for today or in the future
-                ->orderBy('meeting_date', 'asc') // Sort by meeting_date ascending
-                ->get();
-            return response()->json(['data' => $results], 200);
-        } else {
-            return response()->json(['message' => 'org_id is required'], 422);
-        }
-    }
-    public function getHistoricMeetingsPage(Request $request)
-    {
-        $org_id = $request->header('org_id');
-        if ($org_id) {
-            // Get paginated historic meetings for org_id
-            $historicMeetings = Meeting::where('organization_id', $org_id)
-                ->whereDate('meeting_date', '<', Carbon::today())
-                ->orderBy('meeting_date', 'desc')
-                ->paginate(perPage: 20);  // Apply pagination with 20 meetings per page
-            dd($historicMeetings->sql());
-            return response()->json(['data' => $historicMeetings], 200);
-        } else {
-            return response()->json(['message' => 'org_id is required'], 422);
-        }
+        $meetings = Meeting::query();
+
+        // Apply any necessary where clauses
+        $meetings->where('organization_id', $org_id)
+            ->where('meeting_date', '<', now()) // Use now() to get the current date and time
+            ->orderBy('meeting_date', 'desc');
+        // Paginate the results using paginate()
+        $paginatedMeetings = $meetings->paginate(perPage: 10, page: $page);
+
+        return response()->json(['data' => $paginatedMeetings], 200);
     }
 }
