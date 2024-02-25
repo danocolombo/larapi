@@ -33,12 +33,13 @@ Route::get('/organizations', [OrganizationController::class, 'index']);
 Route::get('/organizations/{id}', [OrganizationController::class, 'show']);
 Route::get('/organizations/search/{name}', [OrganizationController::class, 'search']);
 Route::get('/meetings', [MeetingController::class, 'index']);
-Route::get('/meetings/active', [MeetingController::class, 'getActive']);
+Route::get('/meetings/active/{page}', [MeetingController::class, 'getActiveMeetings']);
 Route::get('/meetings/{id}', [MeetingController::class, 'show']);
 Route::get('/meetings/search/{name}', [MeetingController::class, 'search']);
 Route::get('/meetings/groups/{id}', [MeetingController::class, 'getMeetingAndGroups']);
 Route::get('/meetings/gemini/{id}', [MeetingController::class, 'gemini']);
 Route::get('/meetings/history/{page}', [MeetingController::class, 'getMeetingsHistoryPage']);
+Route::get('/meetingslist/{type}/{page}', [MeetingController::class, 'getMeetingsList']);
 
 Route::get('/groups', [GroupController::class, 'index']);
 Route::get('/groups/{id}', [GroupController::class, 'show']);

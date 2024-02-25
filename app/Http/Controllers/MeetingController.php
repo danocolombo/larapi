@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MeetingListItemResource;
 use App\Models\Meeting;
 use App\Models\Group;
 use App\Models\Organization;
+use App\Models\MeetingListItem;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
@@ -242,5 +244,52 @@ class MeetingController extends Controller
         $paginatedMeetings = $meetings->paginate(perPage: 10, page: $page);
 
         return response()->json(['data' => $paginatedMeetings], 200);
+    }
+    public function getActiveMeetings(Request $request, $page)
+    {
+        $org_id = $request->header('org_id');
+        $meetings = Meeting::query();
+        $today = date('Y-m-d', strtotime('now')); // Returns 'YYYY-MM-DD'
+        // Apply any necessary where clauses
+        $meetings->where('organization_id', $org_id)
+            ->where('meeting_date', '>=', $today) // Use now() to get the current date and time
+            ->orderBy('meeting_date', 'ASC');
+        // Paginate the results using paginate()
+        $paginatedMeetings = $meetings->paginate(perPage: 30, page: $page);
+
+        return response()->json(['data' => $paginatedMeetings], 200);
+    }
+
+    public function getMeetingsList(Request $request, $type, $page = 1) // Set default page to 1
+    {
+        $org_id = $request->header('org_id');
+        $today = date('Y-m-d', strtotime('now')); // Returns 'YYYY-MM-DD'
+        $direction = ($type === 'active') ? 'asc' : 'desc';
+        $page_value = ($type === 'active') ? 30 : 20;
+        // Use paginate to retrieve meetings with pagination
+        $meetings = MeetingListItem::select([
+            'id',
+            'organization_id',
+            'meeting_date',
+            'meeting_type',
+            'title',
+            'support_contact',
+            'attendance_count',
+            'meal_count',
+            'meal',
+            'worship'
+        ])
+            ->where('organization_id', $org_id)
+            ->when($type === 'active', function ($query) use ($today) {
+                $query->where('meeting_date', '>=', $today);
+            })
+            ->when($type === 'history', function ($query) use ($today) {
+                $query->where('meeting_date', '<', $today);
+            })
+            ->orderBy('meeting_date', $direction) // Order by meeting_date ascending (default)
+            ->paginate(perPage: $page_value, page: $page); // Paginate with 10 items per page (adjust as needed)
+
+        // Access and use data and pagination information
+        return MeetingListItemResource::collection($meetings);
     }
 }
