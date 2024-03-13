@@ -118,7 +118,7 @@ class MeetingController extends Controller
             'nursery_count' => 'sometimes|nullable|integer',
             'transportation_count' => 'sometimes|nullable|integer',
             'youth_count' => 'sometimes|nullable|integer',
-            'title' => 'sometimes|nullable|decimal',
+            'title' => 'sometimes|nullable|string',
             'meeting_type' => 'sometimes|string',
             'mtg_comp_key' => 'sometimes|nullable|string',
             'announcements_contact' => 'sometimes|nullable|string',
@@ -145,7 +145,7 @@ class MeetingController extends Controller
 
         // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['message' => 'Update failed', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 422, 'message' => 'Update failed', 'errors' => $validator->errors()], 422);
         }
 
         // Check if donation key exists and format it if needed
@@ -155,9 +155,9 @@ class MeetingController extends Controller
 
         // Update values
         if ($meeting->update($request->all())) {
-            return response()->json(['message' => 'Update successful', 'meeting' => $meeting], 200);
+            return response()->json(['status' => 200, 'message' => 'Update successful', 'data' => $meeting], 200);
         } else {
-            return response()->json(['message' => 'Update failed'], 422);
+            return response()->json(['status' => 422, 'message' => 'Update failed'], 422);
         }
     }
 
@@ -180,10 +180,10 @@ class MeetingController extends Controller
         // Attempt to delete the account
         if (Meeting::destroy($id)) {
             // If successful, return a 200 response with the message
-            return response()->json(['message' => 'Destroy Meeting successful'], 200);
+            return response()->json(['status' => 200, 'message' => 'Destroy Meeting successful'], 200);
         } else {
             // If unsuccessful, return a 422 response with the message
-            return response()->json(['message' => 'Destroy Meeting unsuccessful'], 422);
+            return response()->json(['status' => 422, 'message' => 'Destroy Meeting unsuccessful'], 422);
         }
     }
     public function getMeetingAndGroups(string $id)
@@ -200,17 +200,20 @@ class MeetingController extends Controller
             $meeting->groups = $groups;
 
             // Return the meeting object with groups
-            return response()->json($meeting, 200);
+            return response()->json(['status' => 200, 'data' => $meeting], 200);
         } else {
             // Return a 404 response if the meeting is not found
-            return response()->json(['message' => 'Meeting not found'], 404);
+            return response()->json(['status' => 404, 'message' => 'Meeting not found'], 404);
         }
     }
 
 
     public function show(string $id)
     {
-        return Meeting::find($id);
+        $meeting = Meeting::find($id);
+
+        // return Meeting::find($id);
+        return response()->json(['status' => 200, 'data' => $meeting], 200);
     }
     public function search(string $target)
     {
@@ -218,7 +221,8 @@ class MeetingController extends Controller
          * the second parameter is the sql command and we concatenate
          *  % on the front and back of the input variable
          */
-        return Meeting::where('meeting_date', 'like', '%' . $target . '%')->get();
+        $results = Meeting::where('meeting_date', 'like', '%' . $target . '%')->get();
+        return response()->json(['status' => 200, 'data' => $results], 200);
     }
     // In your controller
     public function gemini(string $id)
@@ -226,9 +230,9 @@ class MeetingController extends Controller
         $meetingDetails = Meeting::find($id)->meetingDetails();
 
         if ($meetingDetails) {
-            return response()->json(['meeting' => $meetingDetails], 200);
+            return response()->json(['status' => 200, 'data' => $meetingDetails], 200);
         } else {
-            return response()->json(['message' => 'Meeting not found'], 404);
+            return response()->json(['status' => 404, 'message' => 'Meeting not found'], 404);
         }
     }
     public function getMeetingsHistoryPage(Request $request, $page)
@@ -243,27 +247,26 @@ class MeetingController extends Controller
         // Paginate the results using paginate()
         $paginatedMeetings = $meetings->paginate(perPage: 10, page: $page);
 
-        return response()->json(['data' => $paginatedMeetings], 200);
+        return response()->json(['status' => 200, 'data' => $paginatedMeetings], 200);
     }
     public function getActiveMeetings(Request $request, $page)
     {
         $org_id = $request->header('org_id');
-        $meetings = Meeting::query();
-        $today = date('Y-m-d', strtotime('now')); // Returns 'YYYY-MM-DD'
-        // Apply any necessary where clauses
-        $meetings->where('organization_id', $org_id)
-            ->where('meeting_date', '>=', $today) // Use now() to get the current date and time
-            ->orderBy('meeting_date', 'ASC');
-        // Paginate the results using paginate()
-        $paginatedMeetings = $meetings->paginate(perPage: 30, page: $page);
+        $target_date = $request->header('target_date'); // Assuming target_date is received
 
-        return response()->json(['data' => $paginatedMeetings], 200);
+        $meetings = Meeting::query()
+            ->where('organization_id', $org_id)
+            ->where('meeting_date', '>=', $target_date)
+            ->orderBy('meeting_date', 'ASC')
+            ->paginate(perPage: 30, page: $page);
+
+        return response()->json(['status' => 200, 'data' => $meetings], 200);
     }
 
     public function getMeetingsList(Request $request, $type, $page = 1) // Set default page to 1
     {
         $org_id = $request->header('org_id');
-        $today = date('Y-m-d', strtotime('now')); // Returns 'YYYY-MM-DD'
+        $target_date = $request->header('target_date');
         $direction = ($type === 'active') ? 'asc' : 'desc';
         $page_value = ($type === 'active') ? 30 : 20;
         // Use paginate to retrieve meetings with pagination
@@ -280,16 +283,18 @@ class MeetingController extends Controller
             'worship'
         ])
             ->where('organization_id', $org_id)
-            ->when($type === 'active', function ($query) use ($today) {
-                $query->where('meeting_date', '>=', $today);
+            ->when($type === 'active', function ($query) use ($target_date) {
+                $query->where('meeting_date', '>=', $target_date);
             })
-            ->when($type === 'history', function ($query) use ($today) {
-                $query->where('meeting_date', '<', $today);
+            ->when($type === 'history', function ($query) use ($target_date) {
+                $query->where('meeting_date', '<', $target_date);
             })
             ->orderBy('meeting_date', $direction) // Order by meeting_date ascending (default)
             ->paginate(perPage: $page_value, page: $page); // Paginate with 10 items per page (adjust as needed)
 
         // Access and use data and pagination information
-        return MeetingListItemResource::collection($meetings);
+        $theData = MeetingListItemResource::collection($meetings);
+        return response()->json(['status' => 200, 'data' => $theData], 200);
+        // return MeetingListItemResource::collection($meetings);
     }
 }

@@ -34,7 +34,7 @@ class GroupController extends Controller
 
         /* Check for validation errors */
         if ($validator->fails()) {
-            return response()->json(['message' => 'POST request failed', 'request' => $request->all()], 422);
+            return response()->json(['status' => 422, 'message' => 'POST request failed', 'request' => $request->all()], 422);
         }
 
         /* Generate UUID for the id field */
@@ -43,7 +43,7 @@ class GroupController extends Controller
         $group->id = $uuid; // Set UUID as id
         $group->save();
 
-        return response()->json(['message' => 'New group successful', 'group' => $group], 200);
+        return response()->json(['status' => 200, 'message' => 'New group successful', 'group' => $group], 200);
     }
     /**
      * Update the specified resource in storage.
@@ -82,7 +82,7 @@ class GroupController extends Controller
 
         // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['message' => 'Update failed', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 422, 'message' => 'Update failed', 'errors' => $validator->errors()], 422);
         }
 
         // Get the group to update
@@ -90,14 +90,14 @@ class GroupController extends Controller
 
         // If the obligation doesn't exist, return 404
         if (!$group) {
-            return response()->json(['message' => 'Group not found'], 404);
+            return response()->json(['status' => 404, 'message' => 'Group not found'], 404);
         }
 
         // Update values
         if ($group->update($request->all())) {
-            return response()->json(['message' => 'Update successful'], 200);
+            return response()->json(['status' => 200, 'message' => 'Update successful'], 200);
         } else {
-            return response()->json(['message' => 'Update failed'], 422);
+            return response()->json(['status' => 422, 'message' => 'Update failed'], 422);
         }
     }
 
@@ -120,10 +120,10 @@ class GroupController extends Controller
         // Attempt to delete the account
         if (Group::destroy($id)) {
             // If successful, return a 200 response with the message
-            return response()->json(['message' => 'Destroy Group successful'], 200);
+            return response()->json(['status' => 200, 'message' => 'Destroy Group successful'], 200);
         } else {
             // If unsuccessful, return a 422 response with the message
-            return response()->json(['message' => 'Destroy Group unsuccessful'], 422);
+            return response()->json(['status' => 422, 'message' => 'Destroy Group unsuccessful'], 422);
         }
     }
 
@@ -143,9 +143,10 @@ class GroupController extends Controller
 
         // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['message' => 'Invalid id'], 422);
+            return response()->json(['status' => 422, 'message' => 'Invalid id'], 422);
         }
         // If validation passes, proceed with the search
-        return Group::where('meeting_id', '=', $id)->get();
+        $returnData = Group::where('meeting_id', '=', $id)->get();
+        return response()->json(['status' => 200, 'data' => $returnData], 200);
     }
 }
