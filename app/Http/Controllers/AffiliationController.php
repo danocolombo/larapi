@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Affiliation;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str; // Import Str class for UUID generation
 use Illuminate\Http\Request;
 
@@ -13,9 +12,17 @@ class AffiliationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, int $page = 1)
     {
-        return Affiliation::all();
+        // Check if page is provided in the request (query parameter)
+        if ($request->has('page')) {
+            $page = $request->query('page');
+        }
+
+        // Fetch paginated affiliations based on requested page
+        $affiliations = Affiliation::paginate(15, ['*'], 'page', $page);
+
+        return $affiliations;
     }
 
     /**
@@ -75,9 +82,66 @@ class AffiliationController extends Controller
             return response()->json(['message' => 'Update failed'], 422);
         }
     }
-    public function show(string $id)
+    public function getAffiliation(string $id)
     {
-        return Affiliation::find($id);
+        $affiliation = Affiliation::find($id);
+
+        if ($affiliation) {
+            // Record found, return JSON with "data" key and record object
+            return response()->json([
+                'data' => $affiliation
+            ], 200);
+        } else {
+            // Record not found, return 404 with "data" key set to null
+            return response()->json([
+                'data' => null
+            ], 404);
+        }
+    }
+    public function getAffiliationsForPerson(string $person, Request $request, int $page = 1)
+    {
+        // Check if page is provided in the request (query parameter or path variable)
+        if ($request->has('page')) {
+            $page = $request->query('page');
+        }
+
+        // Fetch paginated affiliations for the specified person
+        $affiliations = Affiliation::where('person_id', '=', $person)
+            ->paginate(15, ['*'], 'page', $page);
+
+        if ($affiliations->count() > 0) {
+            // Records found, return 200 with "data" key and full pagination links
+            return response()->json([
+                'data' => $affiliations->items(),
+                'total' => $affiliations->total(),
+                'page' => $page,
+                'last_page' => $affiliations->lastPage(),
+                'next_page_url' => $affiliations->hasMorePages() ? $baseUrl . $affiliations->nextPageUrl() : null,
+                'prev_page_url' => $affiliations->previousPageUrl() ? $baseUrl . $affiliations->previousPageUrl() : null,
+                // Add other links like 'first_page_url', 'last_page_url' (optional)
+            ], 200);
+        } else {
+            // Records not found, return 404 with "data" key set to null
+            return response()->json([
+                'data' => null
+            ], 404);
+        }
+    }
+    public function getAffiliationForOrganization(string $organization)
+    {
+
+        $affiliations = Affiliation::where('organization_id', '=', $organization)->get();
+        if ($affiliations->count() > 0) {
+            // Records found, return 200 with "data" key and affiliation objects
+            return response()->json([
+                'data' => $affiliations
+            ], 200);
+        } else {
+            // Records not found, return 404 with "data" key set to null
+            return response()->json([
+                'data' => null
+            ], 404);
+        }
     }
     public function destroy(string $id)
     {
@@ -101,34 +165,4 @@ class AffiliationController extends Controller
             return response()->json(['message' => 'Destroy Affiliation unsuccessful'], 422);
         }
     }
-    // public function target(Request $request)
-    // {
-    //     Log::info('Received request:', $request->all());
-    //     return response()->json(['message' => 'filter not identified', 'request' => $request], 422);
-    //     // Your existing logic here...
-
-    //     // Log the response or return statements if needed...
-
-    //     // Return response...
-    // }
-    // public function search2(Request $request)
-    // {
-    //     $query = Affiliation::query();
-
-    //     if ($request->has('person_id')) {
-    //         $personId = $request->input('person_id');
-    //         // $query->where('person_id', $personId);
-    //         return response()->json(['message' => 'person_id identified', 'person_id' => $personId], 200);
-    //     } elseif ($request->has('organization_id')) {
-    //         $organizationId = $request->input('organization_id');
-    //         // $query->where('organization_id', $organizationId);
-    //         return response()->json(['message' => 'organization_id identified', 'organization_id' => $organizationId], 200);
-    //     } else {
-    //         return response()->json(['message' => 'filter not identified', 'request' => $request], 422);
-    //     }
-
-    //     // $results = $query->get();
-
-    //     // return response()->json($results);
-    // }
 }

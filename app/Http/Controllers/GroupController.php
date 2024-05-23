@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; // Import Str class for UUID generation
 
 class GroupController extends Controller
 {
@@ -19,7 +18,6 @@ class GroupController extends Controller
         $groups = Group::query()->paginate(perPage: 10);
         return response()->json(['data' => $groups], 200);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -27,7 +25,7 @@ class GroupController extends Controller
     {
         /* Validate POST request body */
         $validator = Validator::make($request->all(), [
-            'grp_comp_key' => 'required',
+            // 'grp_comp_key' => 'required',
             'title' => 'required',
             'meeting_id' => 'required'
         ]);
@@ -36,11 +34,14 @@ class GroupController extends Controller
         if ($validator->fails()) {
             return response()->json(['status' => 422, 'message' => 'POST request failed', 'request' => $request->all()], 422);
         }
+        $gck = $request->get('grp_comp_key', 'default');
 
         /* Generate UUID for the id field */
-        $uuid = Str::uuid()->toString(); // Generate 
+        $uuid = Str::uuid()->toString(); // Generate UUID
+
         $group = new Group($request->all());
         $group->id = $uuid; // Set UUID as id
+        $group->grp_comp_key = $gck;
         $group->save();
 
         return response()->json(['status' => 200, 'message' => 'New group successful', 'group' => $group], 200);
@@ -54,14 +55,13 @@ class GroupController extends Controller
         $validator = Validator::make($request->all(), [
             'grp_comp_key' => 'required_without_all:title,location,gender,attendance,facilitator,cofacilitator,notes,meeting_id|string',
             'title' => 'required_without_all:grp_comp_key,location,gender,attendance,facilitator,cofacilitator,notes,meeting_id|string',
-            'location' => 'required_without_all:grp_comp_key,title,gender,attendance,facilitator,cofacilitator,notes,meeting_id|string',
+            'location' => 'required_without_all:grp_comp_key,title,gender,attendance,facilitator,cofacilitator,notes,meeting_id|nullable|string', // Allow null values
             'gender' => 'required_without_all:grp_comp_key,title,location,attendance,facilitator,cofacilitator,notes,meeting_id|string|max:1',
-            'attendance' => 'required_without_all:grp_comp_key,title,location,gender,facilitator,cofacilitator,notes,meeting_id|smallInteger',
-            'facilitator' => 'required_without_all:grp_comp_key,title,location,gender,attendance,cofacilitator,notes,meeting_id|string',
-            'cofacilitator' => 'required_without_all:grp_comp_key,title,location,gender,attendance,facilitator,notes,meeting_id|string',
-            'notes' => 'required_without_all:grp_comp_key,title,location,gender,attendance,facilitator,cofacilitator,meeting_id|text',
-            'meeting_id' => 'required_without_all:grp_comp_key,title,location,gender,attendance,facilitator,cofacilitator,notes|uuid', // Ensure meeting_id is a valid UUID
-
+            'attendance' => 'required_without_all:grp_comp_key,title,location,gender,facilitator,cofacilitator,notes,meeting_id|nullable|integer',
+            'facilitator' => 'required_without_all:grp_comp_key,title,location,gender,attendance,cofacilitator,notes,meeting_id|nullable|string',
+            'cofacilitator' => 'required_without_all:grp_comp_key,title,location,gender,attendance,facilitator,notes,meeting_id|nullable|string',
+            'notes' => 'required_without_all:grp_comp_key,title,location,gender,attendance,facilitator,cofacilitator,meeting_id|nullable|string',
+            // 'meeting_id' => 'required_without_all:grp_comp_key,title,location,gender,attendance,facilitator,cofacilitator,notes|uuid', // Ensure meeting_id is a valid UUID
         ]);
 
         // Validate the $id parameter
@@ -72,13 +72,6 @@ class GroupController extends Controller
         $request->merge(['id' => $id]);
 
         $request->validate($idValidationRules);
-
-        // // If location_id is provided, validate it as UUID
-        // if ($request->has('location_id')) {
-        //     $validator->sometimes('location_id', 'uuid', function ($input) {
-        //         return $input->location_id !== null;
-        //     });
-        // }
 
         // Check if validation fails
         if ($validator->fails()) {
@@ -95,9 +88,19 @@ class GroupController extends Controller
 
         // Update values
         if ($group->update($request->all())) {
-            return response()->json(['status' => 200, 'message' => 'Update successful'], 200);
+            // On success, return updated group with 200 status
+            return response()->json([
+                'status' => 200,
+                'message' => 'Update successful',
+                'data' => $group
+            ], 200);
         } else {
-            return response()->json(['status' => 422, 'message' => 'Update failed'], 422);
+            // On failure, create error response with 422 status
+            return response()->json([
+                'status' => 422,
+                'message' => 'Update failed',
+                'errors' => ['general' => 'Failed to update group.'] // Provide a general error message
+            ], 422);
         }
     }
 
@@ -132,7 +135,22 @@ class GroupController extends Controller
      */
     public function show(string $id)
     {
-        return Group::find($id);
+        $group = Group::find($id);
+
+        if ($group) {
+            // Record found, return JSON with "data" key and record object
+            return response()->json([
+                'status' => 200,
+                'data' => $group
+            ], 200);
+        } else {
+            // Record not found, return 404 with "data" key set to null
+            return response()->json([
+                'status' => 404,
+                'data' => null,
+                'message' => 'Not found'
+            ], 404);
+        }
     }
     public function searchByMeetingId(string $id)
     {
