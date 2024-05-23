@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Affiliation;
-use App\Models\Organization;
+use App\Models\Location;
 use App\Models\Person;
+use Illuminate\Support\Facades\Storage; // Import the Storage facade
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // Import Str class for UUID generation
@@ -14,11 +15,19 @@ class PersonController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, int $page = 1)
     {
-        return Person::all();
-    }
+        // Check if page is provided in the request (query parameter)
+        $pageSize = 10;
+        if ($request->has('page')) {
+            $page = $request->query('page');
+        }
 
+        // Fetch paginated affiliations based on requested page
+        $people = Person::paginate($pageSize, ['*'], 'page', $page);
+
+        return $people;
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -90,16 +99,17 @@ class PersonController extends Controller
         // Get the jericho_user to update
         $person = Person::find($id);
 
+
         // If the obligation doesn't exist, return 404
         if (!$person) {
-            return response()->json(['message' => 'Person not found'], 404);
+            return response()->json(['status' => 404, 'message' => 'Person not found'], 404);
         }
 
         // Update values
         if ($person->update($request->all())) {
-            return response()->json(['message' => 'Update successful', 'person' => $person], 200);
+            return response()->json(['status' => 200, 'message' => 'Update successful', 'person' => $person], 200);
         } else {
-            return response()->json(['message' => 'Update failed'], 422);
+            return response()->json(['status' => 422, 'message' => 'Update failed'], 422);
         }
     }
 
@@ -122,10 +132,10 @@ class PersonController extends Controller
         // Attempt to delete the account
         if (Person::destroy($id)) {
             // If successful, return a 200 response with the message
-            return response()->json(['message' => 'Destroy Person successful'], 200);
+            return response()->json(['status' => 200, 'message' => 'Destroy Person successful'], 200);
         } else {
             // If unsuccessful, return a 422 response with the message
-            return response()->json(['message' => 'Destroy Person unsuccessful'], 422);
+            return response()->json(['status' => 422, 'message' => 'Destroy Person unsuccessful'], 422);
         }
     }
 
@@ -134,45 +144,160 @@ class PersonController extends Controller
      */
     public function show(string $id)
     {
-        return Person::find($id);
+        // $person =  Person::find($id);
+        $person = Person::with('affiliations', 'defaultOrg', 'location')->find($id);
+
+        if (!$person) {
+            return response()->json(['status' => 404, 'data' => [], 'message' => 'Not found'], 404);
+        } else {
+            return response()->json(['status' => 200, 'data' => $person], 200);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function getSub(string $id)
+    public function getPersonBySub(string $sub)
     {
-        $person = Person::with([
-            'affiliations:id,role,status,person_id,organization_id', // Include necessary fields in affiliations
-            'defaultOrg:id,name,code,hero_message,location_id',
-            'location:id,street,city,state_prov,postal_code'
-        ])->where('sub', $id)->first();
+        $person = Person::with('affiliations', 'location', 'defaultOrg')
+            ->where('sub', $sub)
+            ->first();
 
         if (!$person) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['status' => 404, 'data' => [], 'message' => 'User not found'], 404);
         }
 
-        // Now let's load the affiliations
-        $person->load(['affiliations' => function ($query) use ($person) {
-            $query->where('person_id', $person->id);
-        }]);
+        $affiliations = $person->affiliations->all(); // Assuming affiliations is a collection
+        $location = $person->location ? $person->location->first() : null; // If location is a model
 
-        $person->load(['location' => function ($query) use ($person) {
-            $query->where('id', $person->location_id);
-        }]);
+        $person->affiliations = $affiliations;
+        $person->location = $location;
 
-        // Now let's load the location where 
-
-        // Return the person data with affiliations and organization included
-        return response()->json(['data' => $person], 200);
+        // Return the person data directly
+        return response()->json(['status' => 200, 'data' => $person], 200);
     }
 
-    public function search(string $name)
+    public function getPersonBySubEXTRA(string $sub)
+    {
+        $person = Person::with('affiliations', 'location')
+            ->where('sub', $sub)
+            ->first();
+
+        if (!$person) {
+            return response()->json(['status' => 404, 'data' => [], 'message' => 'User not found'], 404);
+        }
+
+        $affiliations = $person->affiliations->all(); // Assuming affiliations is a collection
+        $location = $person->location ? $person->location->first() : null; // If location is a model
+
+        $person->data = [ // Consider a dedicated key for nested data
+            'affiliations' => $affiliations,
+            'location' => $location,
+        ];
+
+        // Return the person data with affiliations and organization included
+        return response()->json(['status' => 200, 'data' => $person], 200);
+    }
+
+
+    public function search(Request $request)
     {
         /**
          * the second parameter is the sql command and we concatenate
          *  % on the front and back of the input variable
          */
-        return Person::where('username', 'like', '%' . $name . '%')->get();
+        $perPage = 10; // Meetings per page
+        $page = $request->query('page');
+        $sub = $request->query('sub');
+        $username = $request->query('username');
+        $email = $request->query('email');
+
+        if (!$sub && !$username && !$email) {
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'No search criteria provided'], 422);
+        }
+        $people = null; //
+        if ($sub && $username) {
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'Unsupported criteria provided'], 422);
+        }
+        if ($sub && $email) {
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'Unsupported criteria provided'], 422);
+        }
+        if ($username && $email) {
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'Unsupported criteria provided'], 422);
+        }
+        if ($sub) {
+            $people = Person::where('sub', 'like', '%' . $sub . '%')->paginate(perPage: 10);
+        } elseif ($username) {
+            $people = Person::where('username', 'like', '%' . $username . '%')->paginate(perPage: 10);
+        } elseif ($email) {
+            $people = Person::where('email', 'like', '%' . $email . '%')->paginate(perPage: 10);
+        }
+        if ($people->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'data' => $people->toArray(), // Convert paginated collection to array
+                'pagination' => [
+                    'current_page' => $people->currentPage(),
+                    'total_pages' => $people->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $people->total(),
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404, // Consider 204 No Content if appropriate
+                'message' => 'Nothing found',
+                'data' => []
+            ], 404);
+        }
+    }
+    /**
+     * upload a profile picture
+     */
+    public function uploadProfilePicture(Request $req, string $id)
+    {
+        $path = 'public/profile_pics/' . $id;
+        $result = $req->file('xyz')->store($path);
+        return ["results" => $result];
+    }
+    /** 
+     * List the files for the user
+     */
+    public function getProfilePictureList(string $id)
+    {
+        if (!$id) {
+            // No ID provided, return 422 error
+            return response()->json([
+                'status' => 422,
+                'message' => 'Invalid request: Missing ID parameter',
+                'files' => [],
+            ]);
+        }
+
+        $path = 'profile_pics/' . $id;
+
+        // Use Storage facade to get all files from the directory
+        $files = Storage::disk('local')->files($path);
+
+        if (empty($files)) {
+            // No files found, return 404 error
+            return response()->json([
+                'status' => 404,
+                'message' => 'Profile pictures not found for ID: ' . $id,
+                'files' => [],
+            ]);
+        }
+
+        // Extract filenames and return success response
+        $fileNames = [];
+        foreach ($files as $file) {
+            $fileNames[] = basename($file);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Success',
+            'files' => $fileNames,
+        ]);
     }
 }

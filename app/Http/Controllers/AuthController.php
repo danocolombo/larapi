@@ -23,7 +23,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $fields['name'],
             'email' => $fields['email'],
-            'password' => bcrypt($fields['password'])
+            'password' => $fields['password']
         ]);
         /* create token */
         $token = $user->createToken('gaucho')->plainTextToken;

@@ -16,7 +16,7 @@ class GroupController extends Controller
     public function index()
     {
         //return Group::all();
-        $groups = Group::query()->paginate(perPage: 3);
+        $groups = Group::query()->paginate(perPage: 10);
         return response()->json(['data' => $groups], 200);
     }
 

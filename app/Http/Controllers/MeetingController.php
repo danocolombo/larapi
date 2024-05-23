@@ -19,6 +19,7 @@ class MeetingController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index(Request $request)
     {
         $org_id = $request->header('org_id');
@@ -263,12 +264,15 @@ class MeetingController extends Controller
         return response()->json(['status' => 200, 'data' => $meetings], 200);
     }
 
-    public function getMeetingsList(Request $request, $type, $page = 1) // Set default page to 1
+    public function getMeetingsList(Request $request, $type = "active", $page = 1)
     {
         $org_id = $request->header('org_id');
         $target_date = $request->header('target_date');
         $direction = ($type === 'active') ? 'asc' : 'desc';
-        $page_value = ($type === 'active') ? 30 : 20;
+        // can change the default amount returned for active or not.
+        $page_value = ($type === 'active') ? 20 : 20;
+        // Retrieve the page number from the request query parameters
+        $page = $request->query('page', 1);
         // Use paginate to retrieve meetings with pagination
         $meetings = MeetingListItem::select([
             'id',
@@ -292,9 +296,31 @@ class MeetingController extends Controller
             ->orderBy('meeting_date', $direction) // Order by meeting_date ascending (default)
             ->paginate(perPage: $page_value, page: $page); // Paginate with 10 items per page (adjust as needed)
 
-        // Access and use data and pagination information
-        $theData = MeetingListItemResource::collection($meetings);
-        return response()->json(['status' => 200, 'data' => $theData], 200);
-        // return MeetingListItemResource::collection($meetings);
+        // After retrieving pagination data
+        $paginationData = [
+            'total' => $meetings->total(),
+            'per_page' => $meetings->perPage(),
+            'current_page' => $meetings->currentPage(),
+            'last_page' => $meetings->lastPage(),
+            'from' => $meetings->firstItem(),
+            'to' => $meetings->lastItem(),
+        ];
+
+        // Calculate pagination links manually
+        $paginationData['links'] = [
+            'prev_page_url' => $meetings->previousPageUrl(),
+            'next_page_url' => $meetings->nextPageUrl(),
+            'first_page_url' => $meetings->url(1),
+            'last_page_url' => $meetings->url($meetings->lastPage()),
+        ];
+
+        // Prepare response data
+        $responseData = [
+            'status' => 200,
+            'data' => MeetingListItemResource::collection($meetings),
+            'pagination' => $paginationData,
+        ];
+
+        return response()->json($responseData, 200);
     }
 }
