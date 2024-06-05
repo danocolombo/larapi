@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Location extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'id'; // Specify the primary key
     public $incrementing = false; // Disable auto-incrementing
     protected $keyType = 'string'; // Set the key type as string

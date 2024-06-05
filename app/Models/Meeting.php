@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Model;
 
 class Meeting extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'id'; // Specify the primary key
     public $incrementing = false; // Disable auto-incrementing
     protected $keyType = 'string'; // Set the key type as string
@@ -166,6 +167,3 @@ class Meeting extends Model
         return $filteredMeeting;
     }
 }
-// class Group extends Model {
-
-// }

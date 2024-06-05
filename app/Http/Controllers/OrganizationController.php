@@ -14,7 +14,8 @@ class OrganizationController extends Controller
      */
     public function index()
     {
-        return Organization::all();
+        $organizations = Organization::query()->paginate(perPage: 10);
+        return response()->json(['status' => 200, 'data' => $organizations], 200);
     }
 
     /**
@@ -77,14 +78,14 @@ class OrganizationController extends Controller
 
         // If the obligation doesn't exist, return 404
         if (!$organization) {
-            return response()->json(['message' => 'Organization not found'], 404);
+            return response()->json(['status' => 404, 'data' => [], 'message' => 'Organization not found'], 404);
         }
 
         // Update values
         if ($organization->update($request->all())) {
-            return response()->json(['message' => 'Update successful'], 200);
+            return response()->json(['status' => 200, 'data' => $organization, 'message' => 'Update successful'], 200);
         } else {
-            return response()->json(['message' => 'Update failed'], 422);
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'Update failed'], 422);
         }
     }
 
@@ -117,17 +118,67 @@ class OrganizationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function getOrganizationById(string $id)
     {
-        return Organization::find($id);
+        $organization =  Organization::find($id);
+        if ($organization) {
+            // Record found, return JSON with "data" key and record object
+            return response()->json([
+                'status' => 200,
+                'data' => $organization
+            ], 200);
+        } else {
+            // Record not found, return 404 with "data" key set to null
+            return response()->json([
+                'status' => 404,
+                'data' => null,
+                'message' => 'Not found'
+            ], 404);
+        }
     }
 
-    public function search(string $name)
+    public function search(Request $request)
     {
         /**
          * the second parameter is the sql command and we concatenate
          *  % on the front and back of the input variable
          */
-        return Organization::where('name', 'like', '%' . $name . '%')->get();
+        $perPage = 10; // Meetings per page
+        $code = $request->query('code');
+        $name = $request->query('name');
+        if (!$code && !$name) {
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'No search criteria provided'], 422);
+        }
+        $organizatoins = null; //
+        if ($code && $name) {
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'Unsupported criteria provided'], 422);
+        }
+        if ($code) {
+            $organizations = Organization::where('code', 'like', '%' . $code . '%')->paginate(perPage: 10);
+        } elseif ($name) {
+            $organizations = Organization::where('name', 'like', '%' . $name . '%')->paginate(perPage: 10);
+        }
+        // $organizations = Organization::where('code', 'like', '%' . $code . '%')->paginate(perPage: 10);
+        if ($organizations->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'data' => $organizations->toArray(), // Convert paginated collection to array
+                'pagination' => [
+                    'current_page' => $organizations->currentPage(),
+                    'total_pages' => $organizations->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $organizations->total(),
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404, // Consider 204 No Content if appropriate
+                'name' => $name,
+                'message' => 'Not found',
+                'data' => []
+            ], 404);
+        }
+
+        return response()->json(['status' => 200, 'data' => $organizations], 200);
     }
 }

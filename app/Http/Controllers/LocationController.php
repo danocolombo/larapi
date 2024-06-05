@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str; // Import Str class for UUID generation
 use App\Models\Location;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; // Import Str class for UUID generation
+
 class LocationController extends Controller
 {
     /**
@@ -13,7 +14,8 @@ class LocationController extends Controller
      */
     public function index()
     {
-        return Location::all();
+        $locs = Location::query()->paginate(perPage: 10);
+        return response()->json(['data' => $locs], 200);
     }
 
     /**
@@ -69,11 +71,20 @@ class LocationController extends Controller
             return response()->json(['message' => 'Location not found'], 404);
         }
 
-        // Update values
         if ($location->update($request->all())) {
-            return response()->json(['message' => 'Update successful'], 200);
+            // On success, return updated group with 200 status
+            return response()->json([
+                'status' => 200,
+                'message' => 'Update successful',
+                'data' => $location
+            ], 200);
         } else {
-            return response()->json(['message' => 'Update failed'], 422);
+            // On failure, create error response with 422 status
+            return response()->json([
+                'status' => 422,
+                'message' => 'Update failed',
+                'errors' => ['general' => 'Failed to update group.'] // Provide a general error message
+            ], 422);
         }
     }
 
@@ -106,17 +117,19 @@ class LocationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function getLocationById(string $id)
     {
-        return Location::find($id);
-    }
-
-    public function search(string $name)
-    {
-        /**
-         * the second parameter is the sql command and we concatenate
-         *  % on the front and back of the input variable
-         */
-        return Location::where('city', 'like', '%' . $name . '%')->get();
+        $loc = Location::find($id);
+        if ($loc) {
+            // Record found, return JSON with "data" key and record object
+            return response()->json([
+                'data' => $loc
+            ], 200);
+        } else {
+            // Record not found, return 404 with "data" key set to null
+            return response()->json([
+                'data' => null
+            ], 404);
+        }
     }
 }

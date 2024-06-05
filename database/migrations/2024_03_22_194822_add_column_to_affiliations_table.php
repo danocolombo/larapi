@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('groups', function ($table) {
-            $table->string('grp_comp_key', 255)->charset(null)->collation(null)->change();
+        Schema::table('affiliations', function (Blueprint $table) {
+            Schema::table('affiliations', function (Blueprint $table) {
+                $table->string('aws_id')->nullable(); // Example: adding a new nullable string column
+            });
         });
     }
 
@@ -21,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('affiliations', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -1,0 +1,121 @@
+[23-Mar-2024 19:34:02 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:34:02 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:34:14 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:34:14 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:38:59 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:38:59 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:39:14 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:39:14 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:48:05 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:48:05 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:55:00 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:55:00 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:55:34 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 19:55:34 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 20:24:59 America/Chicago] PHP Warning:  Undefined variable $app in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[23-Mar-2024 20:24:59 America/Chicago] PHP Fatal error:  Uncaught Error: Call to a member function make() on null in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php:17
+Stack trace:
+#0 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Configuration/ApplicationBuilder.php(228): {closure}(Object(Illuminate\Foundation\Configuration\Middleware))
+#1 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1294): Illuminate\Foundation\Configuration\ApplicationBuilder->Illuminate\Foundation\Configuration\{closure}(Object(Illuminate\Foundation\Http\Kernel), Object(Illuminate\Foundation\Application))
+#2 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1258): Illuminate\Container\Container->fireCallbackArray(Object(Illuminate\Foundation\Http\Kernel), Array)
+#3 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(1244): Illuminate\Container\Container->fireAfterResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#4 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(805): Illuminate\Container\Container->fireResolvingCallbacks('Illuminate\\Cont...', Object(Illuminate\Foundation\Http\Kernel))
+#5 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1026): Illuminate\Container\Container->resolve('Illuminate\\Cont...', Array, true)
+#6 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Container/Container.php(723): Illuminate\Foundation\Application->resolve('Illuminate\\Cont...', Array)
+#7 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1011): Illuminate\Container\Container->make('Illuminate\\Cont...', Array)
+#8 /home1/qnkhwfte/public_html/jericho/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1166): Illuminate\Foundation\Application->make('Illuminate\\Cont...')
+#9 /home1/qnkhwfte/public_html/jericho/public/index.php(17): Illuminate\Foundation\Application->handleRequest(Object(Illuminate\Http\Request))
+#10 {main}
+  thrown in /home1/qnkhwfte/public_html/jericho/bootstrap/app.php on line 17
+[05-Jun-2024 01:25:49 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\PersonController::downloadProfilePicture() in /home1/qnkhwfte/public_html/jericho/app/Http/Controllers/PersonController.php on line 306

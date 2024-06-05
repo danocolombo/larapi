@@ -12,6 +12,17 @@ use Illuminate\Support\Str; // Import Str class for UUID generation
 
 class PersonController extends Controller
 {
+    public function download($filePath)
+    {
+        // Check if the file exists
+        if (!Storage::exists($filePath)) {
+            return null; // Or handle the error as needed
+        }
+
+        // Return the file content or a download response
+        return Storage::get($filePath);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -256,10 +267,51 @@ class PersonController extends Controller
      */
     public function uploadProfilePicture(Request $req, string $id)
     {
-        $path = 'public/profile_pics/' . $id;
-        $result = $req->file('xyz')->store($path);
-        return ["results" => $result];
+        // $path = 'public/profile_pics/' . $id;
+        // $result = $req->file('xyz')->store($path);
+        // return ["results" => $result];
+
+        // $path = '/profile_pics/' . $id;
+        // $result = $req->file('xyz')->store($path, 'public'); // Specify the 'public' disk
+        // return ["results" => $result];
+
+        $path = '/profile_pics/' . $id; // Base path for subdirectory
+        $fileName = $req->file('image-file')->store($path, 'public'); // Save the file with a generated name
+
+        // Construct the full path with the uploaded filename
+        $fullPath = "$path/$fileName";
+
+        return ["results" => $fullPath]; // Return the full path of the uploaded file
+
     }
+
+    /**
+     *    Download a profile picture
+     **/
+    public function downloadProfilePicture(string $id, string $fileName)
+    {
+        if (!$id || !$fileName) {
+            // Missing ID or filename, return 400 error
+            return response()->json([
+                'status' => 400,
+                'message' => 'Invalid request: Missing ID or filename parameter',
+            ]);
+        }
+
+        $path = 'profile_pics/' . $id . '/' . $fileName;
+
+        if (!Storage::disk('local')->exists($path)) {
+            // File not found, return 404 error
+            return response()->json([
+                'status' => 404,
+                'message' => 'Profile picture not found',
+            ]);
+        }
+
+        // Download the file using Storage facade
+        return Storage::disk('local')->download($path);
+    }
+
     /** 
      * List the files for the user
      */
@@ -279,25 +331,19 @@ class PersonController extends Controller
         // Use Storage facade to get all files from the directory
         $files = Storage::disk('local')->files($path);
 
-        if (empty($files)) {
-            // No files found, return 404 error
-            return response()->json([
-                'status' => 404,
-                'message' => 'Profile pictures not found for ID: ' . $id,
-                'files' => [],
-            ]);
-        }
-
-        // Extract filenames and return success response
-        $fileNames = [];
-        foreach ($files as $file) {
-            $fileNames[] = basename($file);
+        // Extract filenames and potentially subdirectories
+        $fileList = [];
+        foreach ($files as $item) {
+            // Check if it's a file, add filename to the list
+            if (Storage::disk('local')->exists($item)) {
+                $fileList[] = basename($item);
+            }
         }
 
         return response()->json([
             'status' => 200,
-            'message' => 'Success',
-            'files' => $fileNames,
+            'message' => 'Profile pictures retrieved successfully',
+            'files' => $fileList,
         ]);
     }
 }

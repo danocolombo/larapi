@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('affiliations', function (Blueprint $table) {
-            $table->string('aws_person_id')->nullable(); // Example: adding a new nullable string column
+        Schema::table('groups', function (Blueprint $table) {
+            $table->string('aws_mtg_id')->nullable(); // Example: adding a new nullable string column
             $table->string('aws_org_id')->nullable(); // Example: adding a new nullable string column
+            $table->string('organization_id')->nullable(); // Example: adding a new nullable string column
         });
     }
 
@@ -22,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('groups', function (Blueprint $table) {
+            //
+        });
     }
 };

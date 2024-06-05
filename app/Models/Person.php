@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Person extends Model
 {
+    use HasFactory;
     protected $table = 'persons';
     protected $primaryKey = 'id'; // Specify the primary key
     public $incrementing = false; // Disable auto-incrementing
@@ -39,7 +41,6 @@ class Person extends Model
             }
         });
     }
-
     // Define the hasMany relationship with Affiliation:
     public function affiliations()
     {

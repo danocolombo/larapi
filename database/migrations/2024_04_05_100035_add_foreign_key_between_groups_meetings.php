@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use App\Models\Meeting;
 return new class extends Migration
 {
     /**
@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('persons', function (Blueprint $table) {
-            // Replace 'column_name' with the name of your column
-            $table->unique('sub');
-        });
+        //
+	Schema::table('groups', function (Blueprint $table) {
+        $table->foreignIdFor(Meeting::class, 'meeting_id')->constrained()->onDelete('cascade');
+    });
     }
 
     /**

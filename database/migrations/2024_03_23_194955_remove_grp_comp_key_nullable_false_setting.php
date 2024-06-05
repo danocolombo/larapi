@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('meetings', function (Blueprint $table) {
-            $table->dateTime('meeting_date')->change(); // Change the type to dateTime
+        Schema::table('groups', function (Blueprint $table) {
+            $table->string('grp_comp_key')->change(); // Replace with your column name
         });
     }
 
@@ -21,5 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
+        //
     }
 };

@@ -14,45 +14,122 @@ use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rules\Exists;
 use PhpParser\Node\Stmt\TryCatch;
 
+
 class MeetingController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
-    public function index(Request $request)
+    public function index(string $org, Request $request, string $historic = null, string $active = null, string $direction = null)
     {
-        $org_id = $request->header('org_id');
-        $meetings = Meeting::query();
+        $org_id = $org;
+        $historic = $request->query('historic'); // default direction to asc
+        $active = $request->query('active'); // default direction to desc
+        $direction = $request->query('direction');
+        $perPage = 10; // Meetings per page
+        $validDirections = ['asc', 'desc']; // Allowed sorting directions
 
-        // Apply any necessary where clauses
-        $meetings->where('organization_id', $org_id);
+        if (!$direction) {
+            $direction = ($historic) ? 'desc' : 'asc'; // Default to desc for historic, asc for active
+        }
+        // Validate direction parameter
+        if (!in_array(strtolower($direction), $validDirections)) {
+            return response()->json([
+                'status' => 400, // Bad Request
+                'active' => $active,
+                'historic' => $historic,
+                'org' => $org,
+                'direction' => $direction,
+                'message' => 'Invalid direction. Valid values are: ' . implode(', ', $validDirections),
+                'data' => []
+            ], 400);
+        }
+        // $meetings = Meeting::where('organization_id', $org_id)->with('groups')->get();
+        $meetings = Meeting::query()
+            ->where('organization_id', $org_id);
 
-        // Paginate the results using paginate()
-        $paginatedMeetings = $meetings->paginate(perPage: 10);
+        try {
+            // Check for conflicting query variables
+            if ($historic && $active) {
+                return response()->json([
+                    'status' => 422, // Unprocessable Entity
+                    'org' => $org,
+                    'message' => 'Unsupported request, check query variables.',
+                    'data' => []
+                ], 422);
+            }
 
-        return response()->json(['data' => $paginatedMeetings], 200);
-    }
-    // public function index(Request $request)
-    // {
-    //     $org_id = $request->header('org_id');
-    //     if ($org_id) {
-    //         $results = Meeting::where('organization_id', $org_id)->get();
-    //         return response()->json(['data' => $results], 200);
-    //     } else {
-    //         return response()->json(['message' => 'org_id is required'], 422);
-    //     }
-    // }
-    public function getActiveOne(Request $request)
-    {
-        $org_id = $request->header('org_id');
-        if ($org_id) {
-            $results = Meeting::where('organization_id', $org_id)->get();
-            return response()->json(['data' => $results], 200);
+            // Apply filtering for historic or active
+            if ($historic) {
+                $meetings->where('meeting_date', '<', Carbon::parse($historic));
+            } elseif ($active) {
+                $meetings->where('meeting_date', '>=', Carbon::parse($active));
+            }
+
+            // Set default direction based on query variables
+            // if (!$direction) {
+            //     $direction = ($historic) ? 'desc' : 'asc'; // Default to desc for historic, asc for active
+            // }
+            // Validate direction parameter
+            if (!in_array(strtolower($direction), $validDirections)) {
+                return response()->json([
+                    'status' => 400, // Bad Request
+                    'active' => $active,
+                    'historic' => $historic,
+                    'org' => $org,
+                    'direction' => $direction,
+                    'message' => 'Invalid direction. Valid values are: ' . implode(', ', $validDirections),
+                    'data' => []
+                ], 400);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 400, // Bad Request
+                'org' => $org,
+                'historic' => $historic,
+                'active' => $active,
+                'direction' => $direction,
+                'message' => 'Invalid before date format. Use YYYY-MM-DD format.',
+                'data' => []
+            ], 400);
+        }
+
+        // Apply sorting based on direction
+        $meetings->orderBy('meeting_date', strtoupper($direction));
+
+        // Apply pagination with user-specified page number if available
+        $page = $request->query('page', 1); // Default to page 1
+        $meetings = $meetings->paginate(perPage: $perPage, page: $page);
+        // Load groups for each meeting (after pagination)
+        $meetings->each(function ($meeting) {
+            $meeting->load('groups');
+        });
+
+        if ($meetings->count() > 0) {
+            return response()->json([
+                'status' => 200,
+                'org' => $org,
+                'historic' => $historic,
+                'active' => $active,
+                'direction' => $direction,
+                'data' => $meetings->toArray(), // Convert paginated collection to array
+                'pagination' => [
+                    'current_page' => $meetings->currentPage(),
+                    'total_pages' => $meetings->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $meetings->total(),
+                ]
+            ], 200);
         } else {
-            return response()->json(['message' => 'org_id is required'], 422);
+            return response()->json([
+                'status' => 404, // Consider 204 No Content if appropriate
+                'org' => $org,
+                'message' => 'No meetings found for this organization and before date.',
+                'data' => []
+            ], 404);
         }
     }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -67,13 +144,13 @@ class MeetingController extends Controller
 
         /* Check for validation errors */
         if ($validator->fails()) {
-            return response()->json(['message' => 'POST request failed', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 422, 'message' => 'POST request failed', 'errors' => $validator->errors()], 422);
         }
 
         /* Check if organization_id exists in the organizations table */
         $organizationId = $request->input('organization_id');
         if (!Organization::where('id', $organizationId)->exists()) {
-            return response()->json(['message' => 'Invalid organization_id'], 422);
+            return response()->json(['status' => 422, 'message' => 'Invalid organization_id'], 422);
         }
 
         /* Generate UUID for the id field */
@@ -82,27 +159,29 @@ class MeetingController extends Controller
         $meeting->id = $uuid; // Set UUID as id
         $meeting->save();
 
-        return response()->json(['message' => 'New meeting successful', 'meeting' => $meeting], 200);
+        return response()->json(['status' => 200, 'message' => 'New meeting successful', 'data' => $meeting], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $org, string $id)
     {
         // Get the meeting
-        $meeting = Meeting::find($id);
+        $meeting = Meeting::where('organization_id', $org)
+            ->where('id', $id)
+            ->first();
 
         // Check if the meeting exists
         if (!$meeting) {
-            return response()->json(['message' => 'Meeting not found'], 404);
+            return response()->json(['status' => 404, 'data' => [], 'message' => 'Meeting not found'], 404);
         }
 
         // Check if organization_id is provided in the request
         if ($request->has('organization_id')) {
             $organizationId = $request->input('organization_id');
             if (!Organization::where('id', $organizationId)->exists()) {
-                return response()->json(['message' => 'Invalid request. Organization ID does not exist'], 422);
+                return response()->json(['status' => 494, 'data' => [], 'message' => 'Invalid request. Organization ID does not exist'], 422);
             }
         }
 
@@ -146,7 +225,7 @@ class MeetingController extends Controller
 
         // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['status' => 422, 'message' => 'Update failed', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 422, 'data' => [], 'message' => 'Update failed', 'errors' => $validator->errors()], 422);
         }
 
         // Check if donation key exists and format it if needed
@@ -158,169 +237,52 @@ class MeetingController extends Controller
         if ($meeting->update($request->all())) {
             return response()->json(['status' => 200, 'message' => 'Update successful', 'data' => $meeting], 200);
         } else {
-            return response()->json(['status' => 422, 'message' => 'Update failed'], 422);
+            return response()->json(['status' => 422, 'message' => 'Update failed', 'data' => []], 422);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $org, string $id)
     {
-        // Validate that $id is provided and is a valid UUID
-        $validationRules = [
-            'id' => 'required|uuid|exists:meetings,id',
-        ];
+        // Delete meeting where organization_id matches $org and id matches $id
+        $meetingDeleted = Meeting::where('organization_id', $org)
+            ->where('id', $id)
+            ->delete();
 
-        // Merge the ID into the request for validation
-        $request = request()->merge(['id' => $id]);
-
-        // Validate the request
-        $request->validate($validationRules);
-
-        // Attempt to delete the account
-        if (Meeting::destroy($id)) {
-            // If successful, return a 200 response with the message
-            return response()->json(['status' => 200, 'message' => 'Destroy Meeting successful'], 200);
+        if ($meetingDeleted > 0) {
+            // Meeting deleted successfully - return 200 with message
+            return response()->json(['status' => 200, 'message' => 'Meeting deleted successfully'], 200);
         } else {
-            // If unsuccessful, return a 422 response with the message
-            return response()->json(['status' => 422, 'message' => 'Destroy Meeting unsuccessful'], 422);
+            // Meeting not found or deletion failed - return 404 with message
+            return response()->json(['status' => 404, 'message' => 'Meeting not found'], 404);
         }
     }
-    public function getMeetingAndGroups(string $id)
-    {
-        // Retrieve the meeting by ID
-        $meeting = Meeting::find($id);
 
-        // Check if the meeting exists
-        if ($meeting) {
+    public function getOrgMeeting(Request $request, string $org, string $meeting)
+    {
+        //{{baseURL}}/meeting/$org/$meeting
+        // Access route parameters directly
+        $result = Meeting::where('organization_id', $org)
+            ->where('id', $meeting)
+            ->first();
+
+        if ($result) {
             // Retrieve all groups related to the meeting
-            $groups = Group::where('meeting_id', $id)->get();
+            $groups = Group::where('meeting_id', $meeting)->get();
 
             // Add the groups to the meeting object
-            $meeting->groups = $groups;
+            $result->groups = $groups;
 
-            // Return the meeting object with groups
-            return response()->json(['status' => 200, 'data' => $meeting], 200);
+            return response()->json(['status' => 200, 'data' => $result], 200);
         } else {
-            // Return a 404 response if the meeting is not found
-            return response()->json(['status' => 404, 'message' => 'Meeting not found'], 404);
+            return response()->json([
+                'status' => 404,
+                'org' => $org,
+                'meeting' => $meeting,
+                'message' => 'Meeting not found'
+            ], 404);
         }
-    }
-
-
-    public function show(string $id)
-    {
-        $meeting = Meeting::find($id);
-
-        // return Meeting::find($id);
-        return response()->json(['status' => 200, 'data' => $meeting], 200);
-    }
-    public function search(string $target)
-    {
-        /**
-         * the second parameter is the sql command and we concatenate
-         *  % on the front and back of the input variable
-         */
-        $results = Meeting::where('meeting_date', 'like', '%' . $target . '%')->get();
-        return response()->json(['status' => 200, 'data' => $results], 200);
-    }
-    // In your controller
-    public function gemini(string $id)
-    {
-        $meetingDetails = Meeting::find($id)->meetingDetails();
-
-        if ($meetingDetails) {
-            return response()->json(['status' => 200, 'data' => $meetingDetails], 200);
-        } else {
-            return response()->json(['status' => 404, 'message' => 'Meeting not found'], 404);
-        }
-    }
-    public function getMeetingsHistoryPage(Request $request, $page)
-    {
-        $org_id = $request->header('org_id');
-        $meetings = Meeting::query();
-
-        // Apply any necessary where clauses
-        $meetings->where('organization_id', $org_id)
-            ->where('meeting_date', '<', now()) // Use now() to get the current date and time
-            ->orderBy('meeting_date', 'desc');
-        // Paginate the results using paginate()
-        $paginatedMeetings = $meetings->paginate(perPage: 10, page: $page);
-
-        return response()->json(['status' => 200, 'data' => $paginatedMeetings], 200);
-    }
-    public function getActiveMeetings(Request $request, $page)
-    {
-        $org_id = $request->header('org_id');
-        $target_date = $request->header('target_date'); // Assuming target_date is received
-
-        $meetings = Meeting::query()
-            ->where('organization_id', $org_id)
-            ->where('meeting_date', '>=', $target_date)
-            ->orderBy('meeting_date', 'ASC')
-            ->paginate(perPage: 30, page: $page);
-
-        return response()->json(['status' => 200, 'data' => $meetings], 200);
-    }
-
-    public function getMeetingsList(Request $request, $type = "active", $page = 1)
-    {
-        $org_id = $request->header('org_id');
-        $target_date = $request->header('target_date');
-        $direction = ($type === 'active') ? 'asc' : 'desc';
-        // can change the default amount returned for active or not.
-        $page_value = ($type === 'active') ? 20 : 20;
-        // Retrieve the page number from the request query parameters
-        $page = $request->query('page', 1);
-        // Use paginate to retrieve meetings with pagination
-        $meetings = MeetingListItem::select([
-            'id',
-            'organization_id',
-            'meeting_date',
-            'meeting_type',
-            'title',
-            'support_contact',
-            'attendance_count',
-            'meal_count',
-            'meal',
-            'worship'
-        ])
-            ->where('organization_id', $org_id)
-            ->when($type === 'active', function ($query) use ($target_date) {
-                $query->where('meeting_date', '>=', $target_date);
-            })
-            ->when($type === 'history', function ($query) use ($target_date) {
-                $query->where('meeting_date', '<', $target_date);
-            })
-            ->orderBy('meeting_date', $direction) // Order by meeting_date ascending (default)
-            ->paginate(perPage: $page_value, page: $page); // Paginate with 10 items per page (adjust as needed)
-
-        // After retrieving pagination data
-        $paginationData = [
-            'total' => $meetings->total(),
-            'per_page' => $meetings->perPage(),
-            'current_page' => $meetings->currentPage(),
-            'last_page' => $meetings->lastPage(),
-            'from' => $meetings->firstItem(),
-            'to' => $meetings->lastItem(),
-        ];
-
-        // Calculate pagination links manually
-        $paginationData['links'] = [
-            'prev_page_url' => $meetings->previousPageUrl(),
-            'next_page_url' => $meetings->nextPageUrl(),
-            'first_page_url' => $meetings->url(1),
-            'last_page_url' => $meetings->url($meetings->lastPage()),
-        ];
-
-        // Prepare response data
-        $responseData = [
-            'status' => 200,
-            'data' => MeetingListItemResource::collection($meetings),
-            'pagination' => $paginationData,
-        ];
-
-        return response()->json($responseData, 200);
     }
 }

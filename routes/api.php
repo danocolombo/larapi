@@ -80,10 +80,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/person/{id}', [PersonController::class, 'update']);
     Route::delete('/person/{id}', [PersonController::class, 'destroy']);
     Route::post('/person/{id}/image', [PersonController::class, 'uploadProfilePicture']);
-    Route::get('/person/{id}/image-list', [PersonController::class, 'getProfilePictureList']);
-
-
-    // Route::get('/people/sub/{id}', [PersonController::class, 'getSub']);
+    Route::get('/person/{id}/image/{image}', [PersonController::class, 'downloadProfilePicture']);
+    Route::get('/person/publiclist/{id}', [PersonController::class, 'getProfilePictureList']);
 });
 // Route::get('/user', function (Request $request) {
 //     return $request->user();

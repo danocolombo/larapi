@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Update the table to make the specified column nullable
-        Schema::table('default_groups', function (Blueprint $table) {
-            $table->string('gender')->nullable()->change();
+        Schema::table('persons', function (Blueprint $table) {
+            $table->string('aws_def_org_id')->nullable(); // Example: adding a new nullable string column
+            $table->string('aws_location_id')->nullable(); // Example: adding a new nullable string column
         });
     }
 
